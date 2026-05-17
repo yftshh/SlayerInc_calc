@@ -140,6 +140,15 @@
         inset 0 0 24px rgba(0, 0, 0, 0.9);
     }
 
+    .category-header--magma {
+      border-color: rgba(255, 120, 48, 0.65);
+      --cat-glow: rgba(255, 100, 40, 0.35);
+      box-shadow:
+        0 0 18px rgba(255, 90, 30, 0.35),
+        0 0 36px rgba(200, 60, 20, 0.15),
+        inset 0 0 24px rgba(0, 0, 0, 0.9);
+    }
+
     .category-title {
       font-family: 'Cinzel Decorative', serif;
       text-transform: uppercase;
@@ -166,6 +175,11 @@
       filter: drop-shadow(0 0 6px rgba(200, 168, 78, 0.35));
     }
 
+    .rune-card-shell--magma {
+      --shell-border: linear-gradient(135deg, #ffb080 0%, #c44a18 35%, #ff6a28 55%, #8a2808 100%);
+      filter: drop-shadow(0 0 10px rgba(255, 100, 40, 0.55)) drop-shadow(0 0 22px rgba(220, 60, 20, 0.3));
+    }
+
     .rune-card-shell--default {
       --shell-border: linear-gradient(135deg, #8a7060, #3a2a28);
       filter: drop-shadow(0 0 6px rgba(0, 0, 0, 0.5));
@@ -182,6 +196,10 @@
 
     .rune-card-shell--golden:hover {
       filter: drop-shadow(0 0 10px rgba(212, 184, 90, 0.45));
+    }
+
+    .rune-card-shell--magma:hover {
+      filter: drop-shadow(0 0 14px rgba(255, 120, 50, 0.75)) drop-shadow(0 0 28px rgba(220, 70, 25, 0.4));
     }
 
     .rune-card {
@@ -212,6 +230,7 @@
 
     .rune-card--starter { --rune-rgb: 120, 200, 245; }
     .rune-card--golden { --rune-rgb: 200, 168, 78; }
+    .rune-card--magma { --rune-rgb: 255, 110, 48; }
     .rune-card--default { --rune-rgb: 138, 112, 96; }
 
     .rune-card-inner {
@@ -250,6 +269,12 @@
     .rune-card--golden .rune-name {
       color: #c8a84e;
       text-shadow: 0 0 8px rgba(200, 168, 78, 0.35);
+    }
+
+    .rune-card--magma .rune-set-label,
+    .rune-card--magma .rune-name {
+      color: #ff7a38;
+      text-shadow: 0 0 8px rgba(255, 100, 40, 0.4);
     }
 
     .rune-card--default .rune-set-label,
@@ -453,8 +478,8 @@
         <input type="text" id="target" placeholder="e.g. 500k or 1/5OcDe"
           class="input-game w-full px-3 py-2 font-mono text-sm">
         <div>
-          <p class="text-[10px] uppercase tracking-widest text-[var(--text-muted)] mb-1">ETA 50%</p>
-          <p id="customEta" class="font-mono text-2xl font-bold eta-none">--</p>
+          <p class="text-[10px] uppercase tracking-widest text-[var(--text-muted)] mb-1">AVG Time</p>
+          <p id="customAvg" class="font-mono text-2xl font-bold eta-none">--</p>
         </div>
       </div>
 
@@ -478,7 +503,7 @@
         </div>
         <p class="text-[10px] text-[var(--text-muted)] leading-snug mt-2">
           <i class="fas fa-check-circle text-red-400/80 mr-1"></i>
-          Raise <strong class="font-normal text-[var(--text-main)]">Rune Luck</strong> — over-limit tiers below the latest become <span class="text-[#9ad4ff]">N/A</span>; the newest over-limit tier is the <span class="text-[#9ad4ff]">filler</span>.
+          <strong class="font-normal text-[var(--text-main)]">Filler</strong> when the tier below hits 1/1 (luck/raw ≥ 1) and the tier above is still &lt; 1/1.
         </p>
       </div>
     </div>
@@ -506,8 +531,8 @@
         <button type="button" id="modeCategory" class="btn-sort active" onclick="window.setModeCategory()">
           Total Rune: 0
         </button>
-        <button type="button" id="modeEta" class="btn-sort" onclick="window.setModeEta()">
-          ETA <i id="iconEta" class="fas fa-sort-amount-up opacity-50 ml-1"></i>
+        <button type="button" id="modeEta" class="btn-sort" onclick="window.setModeAvg()">
+          AVG <i id="iconAvg" class="fas fa-sort-amount-up opacity-50 ml-1"></i>
         </button>
       </div>
     </div>
@@ -570,8 +595,9 @@
         const luckPotion = document.getElementById('luckPotion');
         if (luckPotion && typeof state.luckPotion === 'boolean') luckPotion.checked = state.luckPotion;
         if (state.sortConfig?.mode) {
+          const mode = state.sortConfig.mode === 'eta' ? 'avg' : state.sortConfig.mode;
           window.sortConfig = {
-            mode: state.sortConfig.mode,
+            mode: mode === 'avg' || mode === 'category' ? mode : 'category',
             direction: state.sortConfig.direction === 'desc' ? 'desc' : 'asc',
           };
         }
@@ -590,7 +616,7 @@
       { val: 1e6, sym: 'm', disp: 'M' },
       { val: 1e9, sym: 'b', disp: 'B' },
       { val: 1e12, sym: 't', disp: 'T' },
-      { val: 1e15, sym: 'qd', disp: 'Qd' },
+      { val: 1e15, sym: 'qa', disp: 'Qa' },
       { val: 1e18, sym: 'qn', disp: 'Qn' },
       { val: 1e21, sym: 'sx', disp: 'Sx' },
       { val: 1e24, sym: 'sp', disp: 'Sp' },
@@ -604,7 +630,7 @@
       { val: 1e39, sym: 'dd', disp: 'DDe' },
       { val: 1e42, sym: 'tde', disp: 'TDe' },
       { val: 1e42, sym: 'td', disp: 'TDe' },
-      { val: 1e45, sym: 'qdde', disp: 'QdDe' },
+      { val: 1e45, sym: 'qade', disp: 'QaDe' },
       { val: 1e48, sym: 'qnde', disp: 'QnDe' },
       { val: 1e51, sym: 'sxde', disp: 'SxDe' },
       { val: 1e54, sym: 'spde', disp: 'SpDe' },
@@ -678,7 +704,7 @@
       return `${days}d ${hrs % 24}h`;
     }
 
-    function getEtaClass(seconds) {
+    function getAvgClass(seconds) {
       if (!isFinite(seconds) || seconds <= 0) return 'eta-none';
       if (seconds < 300) return 'eta-fast';
       if (seconds < 3600) return 'eta-mid';
@@ -693,11 +719,15 @@
       if (t.includes('golden')) {
         return { shell: 'golden', card: 'golden', accent: '#c8a84e', rgb: '200, 168, 78', icon: 'fa-coins' };
       }
+      if (t.includes('magma')) {
+        return { shell: 'magma', card: 'magma', accent: '#ff6a28', rgb: '255, 110, 48', icon: 'fa-fire' };
+      }
       return { shell: 'default', card: 'default', accent: '#8a7060', rgb: '138, 112, 96', icon: 'fa-gem' };
     }
 
-    function getEta50(base) {
-      return base > 0 ? base * Math.LN2 : 0;
+    /** Expected time (seconds) = expected rolls / totalPower. */
+    function getAvgTime(base) {
+      return base > 0 && isFinite(base) ? base : 0;
     }
 
     function escapeHtml(str) {
@@ -720,30 +750,31 @@
       return runeData.filter(r => r.type === type);
     }
 
-    /** Tier is over its limit when luck > raw (can't use fixed luck/raw odds). */
-    function isOverLimit(raw, luck) {
-      return raw > 0 && luck > raw;
+    function luckRatio(raw, luck) {
+      return raw > 0 && luck > 0 ? luck / raw : 0;
     }
 
     /**
-     * Over-limit tiers (luck > raw): only the latest (highest) is filler; earlier are N/A.
-     * If none over limit, lowest tier is filler. Above filler: P = luck/raw.
+     * Filler = lowest tier where previous (commoner) has luck/raw ≥ 1 and next (rarer) still < 1.
+     * Below filler with luck > raw → N/A. Above filler → P = luck/raw.
      */
     function getPoolState(setRunes, luck) {
-      const overLimit = [];
-      for (let i = 0; i < setRunes.length; i++) {
-        const raw = parseValue(setRunes[i].raw);
-        if (isOverLimit(raw, luck)) overLimit.push(i);
-      }
-
+      const L = luck > 0 ? luck : 0;
+      const n = setRunes.length;
       let fillerIdx = 0;
-      if (overLimit.length === 1) {
-        fillerIdx = overLimit[0];
-      } else if (overLimit.length >= 2) {
-        fillerIdx = overLimit[overLimit.length - 1];
+
+      for (let i = 0; i < n; i++) {
+        const rawPrev = i > 0 ? parseValue(setRunes[i - 1].raw) : 0;
+        const rawNext = i < n - 1 ? parseValue(setRunes[i + 1].raw) : 0;
+        const prevAtLeastOne = i === 0 || luckRatio(rawPrev, L) >= 1;
+        const nextBelowOne = i === n - 1 || luckRatio(rawNext, L) < 1;
+        if (prevAtLeastOne && nextBelowOne) {
+          fillerIdx = i;
+          break;
+        }
       }
 
-      return { fillerIdx, overLimit };
+      return { fillerIdx };
     }
 
     function buildChanceMap(luck) {
@@ -823,7 +854,7 @@
     }
 
     /** Expected rolls to hit; luck is applied via totalPower (RPS × luck), not here. */
-    function getEtaRolls(rune, chanceMap) {
+    function getAvgRolls(rune, chanceMap) {
       const info = chanceMap.get(getRuneKey(rune));
       if (info?.excluded) return Infinity;
       if (info?.isFiller) return info.rawEffective;
@@ -860,16 +891,16 @@
 
       const totalPower = effectiveRPS * luckValue;
       const target = targetEl ? parseValue(targetEl.value) : 0;
-      const customEtaEl = document.getElementById('customEta');
+      const customAvgEl = document.getElementById('customAvg');
 
-      if (customEtaEl) {
+      if (customAvgEl) {
         if (totalPower > 0 && target > 0) {
-          const sec = getEta50(target / totalPower);
-          customEtaEl.innerText = formatTime(sec);
-          customEtaEl.className = 'font-mono text-2xl font-bold ' + getEtaClass(sec);
+          const sec = getAvgTime(target / totalPower);
+          customAvgEl.innerText = formatTime(sec);
+          customAvgEl.className = 'font-mono text-2xl font-bold ' + getAvgClass(sec);
         } else {
-          customEtaEl.innerText = '--';
-          customEtaEl.className = 'font-mono text-2xl font-bold eta-none';
+          customAvgEl.innerText = '--';
+          customAvgEl.className = 'font-mono text-2xl font-bold eta-none';
         }
       }
 
@@ -883,27 +914,28 @@
       window.calculate();
     };
 
-    window.setModeEta = function () {
-      if (window.sortConfig.mode === 'eta') {
+    window.setModeAvg = function () {
+      if (window.sortConfig.mode === 'avg') {
         window.sortConfig.direction = window.sortConfig.direction === 'asc' ? 'desc' : 'asc';
       } else {
-        window.sortConfig.mode = 'eta';
+        window.sortConfig.mode = 'avg';
         window.sortConfig.direction = 'asc';
       }
       updateSortUI();
       window.calculate();
     };
+    window.setModeEta = window.setModeAvg;
 
     function updateSortUI() {
       const btnTotal = document.getElementById('modeCategory');
-      const btnEta = document.getElementById('modeEta');
-      const iconEta = document.getElementById('iconEta');
+      const btnAvg = document.getElementById('modeEta');
+      const iconAvg = document.getElementById('iconAvg');
       btnTotal.className = window.sortConfig.mode === 'category' ? 'btn-sort active' : 'btn-sort';
-      btnEta.className = window.sortConfig.mode === 'eta' ? 'btn-sort active' : 'btn-sort';
+      btnAvg.className = window.sortConfig.mode === 'avg' ? 'btn-sort active' : 'btn-sort';
       if (window.sortConfig.mode === 'category') {
-        iconEta.className = 'fas fa-sort-amount-up opacity-50 ml-1';
+        iconAvg.className = 'fas fa-sort-amount-up opacity-50 ml-1';
       } else {
-        iconEta.className = window.sortConfig.direction === 'asc'
+        iconAvg.className = window.sortConfig.direction === 'asc'
           ? 'fas fa-sort-amount-up ml-1'
           : 'fas fa-sort-amount-down ml-1';
       }
@@ -928,21 +960,21 @@
       return getRuneListIndex(a) - getRuneListIndex(b);
     }
 
-    function getRuneEta50(rune, chanceMap, totalPower) {
+    function getRuneAvg(rune, chanceMap, totalPower) {
       if (chanceMap.get(getRuneKey(rune))?.excluded) return Infinity;
-      const rolls = getEtaRolls(rune, chanceMap);
+      const rolls = getAvgRolls(rune, chanceMap);
       if (!isFinite(rolls) || rolls <= 0 || totalPower <= 0) return Infinity;
-      return getEta50(rolls / totalPower) || Infinity;
+      return getAvgTime(rolls / totalPower) || Infinity;
     }
 
     function sortRunesForDisplay(list, chanceMap, totalPower) {
-      if (window.sortConfig.mode === 'eta') {
+      if (window.sortConfig.mode === 'avg') {
         return list.sort((a, b) => {
           const exA = chanceMap.get(getRuneKey(a))?.excluded ? 1 : 0;
           const exB = chanceMap.get(getRuneKey(b))?.excluded ? 1 : 0;
           if (exA !== exB) return exA - exB;
-          const ea = getRuneEta50(a, chanceMap, totalPower);
-          const eb = getRuneEta50(b, chanceMap, totalPower);
+          const ea = getRuneAvg(a, chanceMap, totalPower);
+          const eb = getRuneAvg(b, chanceMap, totalPower);
           return window.sortConfig.direction === 'asc' ? ea - eb : eb - ea;
         });
       }
@@ -983,9 +1015,9 @@
         const runeKey = getRuneKey(rune);
         const chanceInfo = chanceMap.get(runeKey);
         const isLocked = chanceInfo?.excluded;
-        const rolls = getEtaRolls(rune, chanceMap);
-        const etaBase = totalPower > 0 && isFinite(rolls) && rolls > 0 ? rolls / totalPower : 0;
-        const eta50 = isLocked ? NaN : getEta50(etaBase);
+        const rolls = getAvgRolls(rune, chanceMap);
+        const avgBase = totalPower > 0 && isFinite(rolls) && rolls > 0 ? rolls / totalPower : 0;
+        const avgSec = isLocked ? NaN : getAvgTime(avgBase);
 
         const isPinned = window.pinnedRunes.has(runeKey);
         const displayCat =
@@ -1038,8 +1070,8 @@
 
         const pinClass = isPinned ? 'text-yellow-400' : 'text-gray-600 hover:text-yellow-400';
         const chanceLabel = formatChanceLabel(rune, chanceInfo);
-        const etaDisplay = isLocked ? '--' : formatTime(eta50);
-        const etaClass = isLocked ? 'eta-none' : getEtaClass(eta50);
+        const avgDisplay = isLocked ? '--' : formatTime(avgSec);
+        const avgClass = isLocked ? 'eta-none' : getAvgClass(avgSec);
         const statsHtml = (rune.stats || [])
           .map(s => `<li class="stat-line text-xs opacity-90" style="--stat-accent:${accent}">${escapeHtml(s)}</li>`)
           .join('');
@@ -1056,8 +1088,8 @@
               <p class="rune-chance">${chanceLabel}</p>
               <div class="rune-eta-block">
                 <div class="rune-eta-row">
-                  <span class="eta-label">ETA 50%</span>
-                  <span class="eta-value ${etaClass}">${etaDisplay}</span>
+                  <span class="eta-label">AVG</span>
+                  <span class="eta-value ${avgClass}">${avgDisplay}</span>
                 </div>
               </div>
               ${statsHtml ? `<ul class="mt-1 space-y-0.5 pt-2 border-t border-white/5">${statsHtml}</ul>` : ''}

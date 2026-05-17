@@ -8,13 +8,14 @@
  * - stats: preserve +x (additive) vs x (multiplicative) exactly as in-game
  *
  * Chance math (per set, lowest→highest order in this file):
- * - Over limit (luck > raw): if one → filler; if many → earlier are N/A, latest is filler.
- * - Above filler: P = luck / raw. Filler: P = 1 − Σ(P above).
+ * - Filler when tier below has luck/raw ≥ 1 and tier above still luck/raw < 1.
+ * - Below filler (luck > raw): N/A. Above filler: P = luck/raw. Filler: P = 1 − Σ(above).
  */
 
 window.categoryOrder = [
   'Starter Rune',
   'Golden Rune',
+  'Magma Rune',
 ];
 
 window.runeData = [
@@ -87,29 +88,73 @@ window.runeData = [
   {
     name: 'Regal',
     type: 'Golden Rune',
-    chance: '100k',
+    chance: '1/100k',
     raw: '100k',
     stats: ['+x25 Golden Points'],
   },
   {
     name: 'Auric',
     type: 'Golden Rune',
-    chance: '2m',
+    chance: '1/2m',
     raw: '2m',
     stats: ['+x25 Damage', '+x20 Essence', 'x2.5 Rune Luck'],
   },
   {
     name: 'Imperial',
     type: 'Golden Rune',
-    chance: '25m',
+    chance: '1/25m',
     raw: '25m',
     stats: ['+x125 Golden Points', 'x2 Xp', 'x25 Essence'],
   },
   {
     name: 'Treasury',
     type: 'Golden Rune',
-    chance: '125m',
+    chance: '1/125m',
     raw: '125m',
     stats: ['x8 Power', 'x4 Rune Luck', '+5% Gold Chance'],
   },
+
+  // === MAGMA RUNE (raw/chance/stats placeholders — fill in when known) ===
+  {
+    name: 'Charred',
+    type: 'Magma Rune',
+    chance: '1/1',
+    raw: '1',
+    stats: ['+x5 Magma'],
+  },
+  {
+    name: 'Ignis',
+    type: 'Magma Rune',
+    chance: '1/499.9m',
+    raw: '499.9m',
+    stats: ['x15 Magma', '+x10 Damage'],
+  },
+  {
+    name: 'Cinder',
+    type: 'Magma Rune',
+    chance: '1/24.49b',
+    raw: '24.49b',
+    stats: ['+x3 Power', '+x3 Golden Points', 'x1.5 Rune Luck'],
+  },
+  {
+    name: 'Pyric',
+    type: 'Magma Rune',
+    chance: '1/2.749t',
+    raw: '2.749t',
+    stats: ['+x45 Essence', '+x25 Magma', 'x8 Rune Bulk'],
+  },
+  {
+    name: 'Searing',
+    type: 'Magma Rune',
+    chance: '1/97.49t',
+    raw: '97.49t',
+    stats: ['x25 Magma', '+x12 Golden Points', 'x3 Rune Luck'],
+  },
+  {
+    name: 'Volcanic',
+    type: 'Magma Rune',
+    chance: '1/499.99qa',
+    raw: '499.99qa',
+    stats: ['x15 Power', 'x5 Lava', 'x25 Magma'],
+  }
 ];
