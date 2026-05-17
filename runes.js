@@ -3,9 +3,13 @@
  *
  * - type: rune SET (e.g. "Starter Rune", "Golden Rune")
  * - name: rune name (e.g. "Shiny", "Common")
- * - chance: display odds ("1/100k", "1")
- * - raw: value for ETA math (denominator only for "1/X" — e.g. "100k")
+ * - chance: display odds for fixed tiers ("1/100k", "1/6.06")
+ * - raw: fixed 1-in-X denominator (P = 1/raw). NOT used for the set filler.
  * - stats: preserve +x (additive) vs x (multiplicative) exactly as in-game
+ *
+ * Chance math (per set, lowest→highest order in this file):
+ * - Over limit (luck > raw): if one → filler; if many → earlier are N/A, latest is filler.
+ * - Above filler: P = luck / raw. Filler: P = 1 − Σ(P above).
  */
 
 window.categoryOrder = [
@@ -25,8 +29,8 @@ window.runeData = [
   {
     name: 'Uncommon',
     type: 'Starter Rune',
-    chance: '1/6.06',
-    raw: '6.06',
+    chance: '1/6',
+    raw: '6',
     stats: ['+x25 Power', '+x5 Xp'],
   },
   {

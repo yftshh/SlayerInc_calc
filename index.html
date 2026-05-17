@@ -264,6 +264,40 @@
       letter-spacing: 0.04em;
     }
 
+    .rune-chance--filler { color: #9ad4ff; }
+    .rune-chance--locked { color: #5a4a4a; text-decoration: line-through; }
+
+    .filler-badge {
+      display: inline-block;
+      font-size: 0.55rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 1px 5px;
+      margin-left: 4px;
+      border: 1px solid rgba(154, 212, 255, 0.45);
+      color: #9ad4ff;
+      vertical-align: middle;
+    }
+
+    .rune-card--locked {
+      opacity: 0.4;
+      filter: grayscale(0.35);
+    }
+    .rune-card--locked .rune-name,
+    .rune-card--locked .rune-chance,
+    .rune-card--locked .rune-set-label {
+      text-decoration: line-through;
+    }
+
+    .rune-card-shell--locked { cursor: default; }
+
+    .set-chance-warn {
+      font-size: 0.7rem;
+      color: #ff5a36;
+      margin-top: 4px;
+      font-family: 'Share Tech Mono', monospace;
+    }
+
     .rune-eta-block {
       border-top: 1px solid rgba(255, 255, 255, 0.06);
       padding-top: 0.6rem;
@@ -442,6 +476,10 @@
             </div>
           </div>
         </div>
+        <p class="text-[10px] text-[var(--text-muted)] leading-snug mt-2">
+          <i class="fas fa-check-circle text-red-400/80 mr-1"></i>
+          Raise <strong class="font-normal text-[var(--text-main)]">Rune Luck</strong> — over-limit tiers below the latest become <span class="text-[#9ad4ff]">N/A</span>; the newest over-limit tier is the <span class="text-[#9ad4ff]">filler</span>.
+        </p>
       </div>
     </div>
   </aside>
@@ -678,6 +716,120 @@
       return `1 in ${c}`;
     }
 
+    function getRunesInSet(type) {
+      return runeData.filter(r => r.type === type);
+    }
+
+    /** Tier is over its limit when luck > raw (can't use fixed luck/raw odds). */
+    function isOverLimit(raw, luck) {
+      return raw > 0 && luck > raw;
+    }
+
+    /**
+     * Over-limit tiers (luck > raw): only the latest (highest) is filler; earlier are N/A.
+     * If none over limit, lowest tier is filler. Above filler: P = luck/raw.
+     */
+    function getPoolState(setRunes, luck) {
+      const overLimit = [];
+      for (let i = 0; i < setRunes.length; i++) {
+        const raw = parseValue(setRunes[i].raw);
+        if (isOverLimit(raw, luck)) overLimit.push(i);
+      }
+
+      let fillerIdx = 0;
+      if (overLimit.length === 1) {
+        fillerIdx = overLimit[0];
+      } else if (overLimit.length >= 2) {
+        fillerIdx = overLimit[overLimit.length - 1];
+      }
+
+      return { fillerIdx, overLimit };
+    }
+
+    function buildChanceMap(luck) {
+      const map = new Map();
+      const L = luck > 0 ? luck : 0;
+      const types = [...new Set(runeData.map(r => r.type))];
+
+      for (const type of types) {
+        const setRunes = getRunesInSet(type);
+        if (!setRunes.length) continue;
+
+        const { fillerIdx } = getPoolState(setRunes, L);
+        let othersSum = 0;
+
+        for (let i = fillerIdx + 1; i < setRunes.length; i++) {
+          const r = setRunes[i];
+          const raw = parseValue(r.raw);
+          if (raw <= 0) continue;
+          const p = L / raw;
+          othersSum += p;
+          map.set(getRuneKey(r), {
+            prob: p,
+            rawEffective: raw / L,
+            isFiller: false,
+            excluded: false,
+          });
+        }
+
+        const filler = setRunes[fillerIdx];
+        const fillerProb = Math.max(0, 1 - othersSum);
+        const fillerRawEff = fillerProb > 0 ? 1 / fillerProb : Infinity;
+        map.set(getRuneKey(filler), {
+          prob: fillerProb,
+          rawEffective: fillerRawEff,
+          isFiller: true,
+          excluded: false,
+        });
+
+        for (let i = 0; i < fillerIdx; i++) {
+          const r = setRunes[i];
+          const raw = parseValue(r.raw);
+          if (raw <= 0) continue;
+          map.set(getRuneKey(r), {
+            prob: 0,
+            rawEffective: Infinity,
+            isFiller: false,
+            excluded: true,
+            lockRaw: raw,
+          });
+        }
+      }
+
+      return map;
+    }
+
+    function getSetFillerWarning(type, chanceMap) {
+      const setRunes = getRunesInSet(type);
+      const fillerEntry = setRunes
+        .map(r => chanceMap.get(getRuneKey(r)))
+        .find(info => info?.isFiller);
+      if (fillerEntry && fillerEntry.prob <= 0) {
+        return 'Luck too high — active tier odds exceed 100%';
+      }
+      return '';
+    }
+
+    function formatChanceLabel(rune, info) {
+      if (info?.excluded) {
+        const need = formatValue(info.lockRaw ?? parseValue(rune.raw));
+        return '<span class="rune-chance--locked">N/A — unobtainable</span>';
+      }
+      const denom = formatValue(info.rawEffective);
+      if (info?.isFiller) {
+        return `<span class="rune-chance--filler">${formatChanceDisplay('1/' + denom)}<span class="filler-badge">filler</span></span>`;
+      }
+      return formatChanceDisplay('1/' + denom);
+    }
+
+    /** Expected rolls to hit; luck is applied via totalPower (RPS × luck), not here. */
+    function getEtaRolls(rune, chanceMap) {
+      const info = chanceMap.get(getRuneKey(rune));
+      if (info?.excluded) return Infinity;
+      if (info?.isFiller) return info.rawEffective;
+      return parseValue(rune.raw);
+    }
+
     window.togglePin = function (key, e) {
       e.stopPropagation();
       if (window.pinnedRunes.has(key)) window.pinnedRunes.delete(key);
@@ -721,7 +873,7 @@
         }
       }
 
-      renderRunes(totalPower);
+      renderRunes(totalPower, luckValue);
       saveState();
     };
 
@@ -762,9 +914,55 @@
       return idx === -1 ? 9999 : idx;
     }
 
-    function renderRunes(totalPower) {
+    function getRuneListIndex(rune) {
+      const key = getRuneKey(rune);
+      const idx = runeData.findIndex(r => getRuneKey(r) === key);
+      return idx === -1 ? 9999 : idx;
+    }
+
+    /** Default: runes.js order (Common → … → Unknown); unobtainable last. */
+    function compareRuneDisplayOrder(a, b, chanceMap) {
+      const exA = chanceMap.get(getRuneKey(a))?.excluded ? 1 : 0;
+      const exB = chanceMap.get(getRuneKey(b))?.excluded ? 1 : 0;
+      if (exA !== exB) return exA - exB;
+      return getRuneListIndex(a) - getRuneListIndex(b);
+    }
+
+    function getRuneEta50(rune, chanceMap, totalPower) {
+      if (chanceMap.get(getRuneKey(rune))?.excluded) return Infinity;
+      const rolls = getEtaRolls(rune, chanceMap);
+      if (!isFinite(rolls) || rolls <= 0 || totalPower <= 0) return Infinity;
+      return getEta50(rolls / totalPower) || Infinity;
+    }
+
+    function sortRunesForDisplay(list, chanceMap, totalPower) {
+      if (window.sortConfig.mode === 'eta') {
+        return list.sort((a, b) => {
+          const exA = chanceMap.get(getRuneKey(a))?.excluded ? 1 : 0;
+          const exB = chanceMap.get(getRuneKey(b))?.excluded ? 1 : 0;
+          if (exA !== exB) return exA - exB;
+          const ea = getRuneEta50(a, chanceMap, totalPower);
+          const eb = getRuneEta50(b, chanceMap, totalPower);
+          return window.sortConfig.direction === 'asc' ? ea - eb : eb - ea;
+        });
+      }
+      return list.sort((a, b) => {
+        const pinA = window.pinnedRunes.has(getRuneKey(a)) ? 1 : 0;
+        const pinB = window.pinnedRunes.has(getRuneKey(b)) ? 1 : 0;
+        if (pinA !== pinB) return pinB - pinA;
+        const catA = window.pinnedRunes.has(getRuneKey(a)) ? -1 : getCategorySortIndex(a.type);
+        const catB = window.pinnedRunes.has(getRuneKey(b)) ? -1 : getCategorySortIndex(b.type);
+        if (catA !== catB) return catA - catB;
+        return compareRuneDisplayOrder(a, b, chanceMap);
+      });
+    }
+
+    function renderRunes(totalPower, luck) {
       const grid = document.getElementById('runesGrid');
       if (!grid) return;
+
+      const chanceMap = buildChanceMap(luck);
+      const setWarningsShown = new Set();
 
       const term = (document.getElementById('runeSearch')?.value || '').toLowerCase();
 
@@ -772,28 +970,7 @@
         r.name.toLowerCase().includes(term) || r.type.toLowerCase().includes(term)
       );
 
-      const getEta50Sort = (r) => {
-        const t = parseValue(r.raw);
-        const base = totalPower > 0 && t > 0 ? t / totalPower : Infinity;
-        return getEta50(base === Infinity ? 0 : base) || Infinity;
-      };
-
-      if (window.sortConfig.mode === 'eta') {
-        filtered.sort((a, b) => {
-          const ea = getEta50Sort(a), eb = getEta50Sort(b);
-          return window.sortConfig.direction === 'asc' ? ea - eb : eb - ea;
-        });
-      } else {
-        filtered.sort((a, b) => {
-          const pinA = window.pinnedRunes.has(getRuneKey(a)) ? 1 : 0;
-          const pinB = window.pinnedRunes.has(getRuneKey(b)) ? 1 : 0;
-          if (pinA !== pinB) return pinB - pinA;
-          const catA = window.pinnedRunes.has(getRuneKey(a)) ? -1 : getCategorySortIndex(a.type);
-          const catB = window.pinnedRunes.has(getRuneKey(b)) ? -1 : getCategorySortIndex(b.type);
-          if (catA !== catB) return catA - catB;
-          return parseValue(a.raw) - parseValue(b.raw);
-        });
-      }
+      sortRunesForDisplay(filtered, chanceMap, totalPower);
 
       document.getElementById('modeCategory').innerText = `Total Rune: ${filtered.length}`;
       document.getElementById('noResults').classList.toggle('hidden', filtered.length > 0);
@@ -803,11 +980,13 @@
       let cardIndex = 0;
 
       filtered.forEach(rune => {
-        const threshold = parseValue(rune.raw);
-        const etaBase = totalPower > 0 && threshold > 0 ? threshold / totalPower : 0;
-        const eta50 = getEta50(etaBase);
-
         const runeKey = getRuneKey(rune);
+        const chanceInfo = chanceMap.get(runeKey);
+        const isLocked = chanceInfo?.excluded;
+        const rolls = getEtaRolls(rune, chanceMap);
+        const etaBase = totalPower > 0 && isFinite(rolls) && rolls > 0 ? rolls / totalPower : 0;
+        const eta50 = isLocked ? NaN : getEta50(etaBase);
+
         const isPinned = window.pinnedRunes.has(runeKey);
         const displayCat =
           isPinned && window.sortConfig.mode === 'category' ? '⭐ Pinned' : rune.type;
@@ -831,25 +1010,42 @@
             <span class="text-xs font-bold uppercase tracking-wider px-3 py-1 font-body" style="color:${accent};border:1px solid ${accent}40">${count} Runes</span>
           `;
           grid.appendChild(header);
+
+          const warnKey = displayCat === '⭐ Pinned' ? null : displayCat;
+          if (warnKey && !setWarningsShown.has(warnKey)) {
+            setWarningsShown.add(warnKey);
+            const warn = getSetFillerWarning(warnKey, chanceMap);
+            if (warn) {
+              const warnEl = document.createElement('p');
+              warnEl.className = 'set-chance-warn col-span-full -mt-1 mb-2 px-1';
+              warnEl.textContent = warn;
+              grid.appendChild(warnEl);
+            }
+          }
         }
 
         const shell = document.createElement('div');
-        shell.className = `rune-card-shell rune-clip rune-card-shell--${theme.shell} card-enter cursor-pointer${isPinned ? ' ring-1 ring-yellow-500/30' : ''}`;
+        shell.className = `rune-card-shell rune-clip rune-card-shell--${theme.shell} card-enter${isLocked ? ' rune-card-shell--locked' : ' cursor-pointer'}${isPinned ? ' ring-1 ring-yellow-500/30' : ''}`;
         shell.style.animationDelay = `${(cardIndex % 12) * 0.04}s`;
         cardIndex++;
 
         shell.onclick = () => {
-          document.getElementById('target').value = rune.raw;
+          if (isLocked) return;
+          const rawForTarget = isFinite(rolls) ? formatValue(rolls) : rune.raw;
+          document.getElementById('target').value = rawForTarget;
           window.calculate();
         };
 
         const pinClass = isPinned ? 'text-yellow-400' : 'text-gray-600 hover:text-yellow-400';
+        const chanceLabel = formatChanceLabel(rune, chanceInfo);
+        const etaDisplay = isLocked ? '--' : formatTime(eta50);
+        const etaClass = isLocked ? 'eta-none' : getEtaClass(eta50);
         const statsHtml = (rune.stats || [])
           .map(s => `<li class="stat-line text-xs opacity-90" style="--stat-accent:${accent}">${escapeHtml(s)}</li>`)
           .join('');
 
         shell.innerHTML = `
-          <div class="rune-card rune-clip rune-card--${theme.card}">
+          <div class="rune-card rune-clip rune-card--${theme.card}${isLocked ? ' rune-card--locked' : ''}">
             <button type="button" class="absolute top-2 right-2 z-20 text-lg ${pinClass} transition-colors"
               onclick='window.togglePin(${JSON.stringify(runeKey)}, event)' aria-label="Pin rune">
               <i class="fas fa-star"></i>
@@ -857,11 +1053,11 @@
             <div class="rune-card-inner">
               <p class="rune-set-label">${escapeHtml(rune.type)}</p>
               <h3 class="rune-name">${escapeHtml(rune.name)}</h3>
-              <p class="rune-chance">${formatChanceDisplay(rune.chance)}</p>
+              <p class="rune-chance">${chanceLabel}</p>
               <div class="rune-eta-block">
                 <div class="rune-eta-row">
                   <span class="eta-label">ETA 50%</span>
-                  <span class="eta-value ${getEtaClass(eta50)}">${formatTime(eta50)}</span>
+                  <span class="eta-value ${etaClass}">${etaDisplay}</span>
                 </div>
               </div>
               ${statsHtml ? `<ul class="mt-1 space-y-0.5 pt-2 border-t border-white/5">${statsHtml}</ul>` : ''}
