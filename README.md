@@ -109,10 +109,4 @@ Sets not listed appear after ordered ones.
 
 ---
 
-## 📄 License
-
-MIT License — use, modify, and share freely.
-
----
-
 *Happy slaying.* 🔥⚔
