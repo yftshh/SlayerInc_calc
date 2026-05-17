@@ -494,6 +494,55 @@
     window.sortConfig = { mode: 'category', direction: 'asc' };
     window.pinnedRunes = new Set();
 
+    const STORAGE_KEY = 'slayerIncCalc_v1';
+
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+          speed: document.getElementById('speed')?.value ?? '',
+          bulk: document.getElementById('bulk')?.value ?? '',
+          luck: document.getElementById('luck')?.value ?? '',
+          target: document.getElementById('target')?.value ?? '',
+          speedPotion: !!document.getElementById('speedPotion')?.checked,
+          luckPotion: !!document.getElementById('luckPotion')?.checked,
+          sortConfig: window.sortConfig,
+          pinnedRunes: [...window.pinnedRunes],
+          runeSearch: document.getElementById('runeSearch')?.value ?? '',
+        }));
+      } catch (_) { /* private mode / quota */ }
+    }
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return;
+        const state = JSON.parse(raw);
+        const setVal = (id, val) => {
+          if (val == null) return;
+          const el = document.getElementById(id);
+          if (el) el.value = val;
+        };
+        setVal('speed', state.speed);
+        setVal('bulk', state.bulk);
+        setVal('luck', state.luck);
+        setVal('target', state.target);
+        setVal('runeSearch', state.runeSearch);
+        const speedPotion = document.getElementById('speedPotion');
+        if (speedPotion && typeof state.speedPotion === 'boolean') speedPotion.checked = state.speedPotion;
+        const luckPotion = document.getElementById('luckPotion');
+        if (luckPotion && typeof state.luckPotion === 'boolean') luckPotion.checked = state.luckPotion;
+        if (state.sortConfig?.mode) {
+          window.sortConfig = {
+            mode: state.sortConfig.mode,
+            direction: state.sortConfig.direction === 'desc' ? 'desc' : 'asc',
+          };
+        }
+        if (Array.isArray(state.pinnedRunes)) {
+          window.pinnedRunes = new Set(state.pinnedRunes.filter(k => typeof k === 'string'));
+        }
+      } catch (_) { /* corrupt data */ }
+    }
+
     function getRuneKey(rune) {
       return `${rune.type}::${rune.name}`;
     }
@@ -673,6 +722,7 @@
       }
 
       renderRunes(totalPower);
+      saveState();
     };
 
     window.setModeCategory = function () {
@@ -834,6 +884,7 @@
     });
     document.getElementById('runeSearch')?.addEventListener('input', window.calculate);
 
+    loadState();
     updateSortUI();
     window.calculate();
   </script>
