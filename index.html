@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Slayer Inc — Rune Calculator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap');
+
+    :root {
+      --bg-deep: #0a0608;
+      --bg-panel: #120d10;
+      --accent-primary: #c0392b;
+      --accent-hot: #ff5a36;
+      --accent-glow: #ff2244;
+      --text-main: #e8d5c4;
+      --text-muted: #8a7060;
+      --border-dark: #2a1a1a;
+      --special-gold: #f5c842;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: 'Rajdhani', sans-serif;
+      background-color: var(--bg-deep);
+      background-image:
+        radial-gradient(circle at 0% 0%, rgba(192, 57, 43, 0.15) 0%, transparent 45%),
+        radial-gradient(circle at 100% 0%, rgba(80, 20, 60, 0.2) 0%, transparent 45%),
+        radial-gradient(circle at 100% 100%, rgba(192, 57, 43, 0.12) 0%, transparent 50%),
+        radial-gradient(circle at 0% 100%, rgba(60, 20, 40, 0.15) 0%, transparent 50%),
+        url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 0 L40 20 L20 40 L0 20 Z' fill='none' stroke='%23c0392b' stroke-width='0.5' opacity='0.08'/%3E%3C/svg%3E");
+      background-attachment: fixed;
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    @media (min-width: 1024px) {
+      body { flex-direction: row; height: 100vh; overflow: hidden; }
+    }
+
+    .font-display { font-family: 'Cinzel Decorative', serif; }
+    .font-body { font-family: 'Rajdhani', sans-serif; }
+    .font-mono { font-family: 'Share Tech Mono', monospace; }
+
+    .header-title {
+      background: linear-gradient(to bottom, #ff8a65 0%, #ff5a36 40%, #c0392b 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 0 12px rgba(255, 34, 68, 0.35));
+    }
+
+    #sidebar {
+      background: var(--bg-panel);
+      border-right: 1px solid var(--border-dark);
+      width: 100%;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.35s ease;
+    }
+
+    @media (min-width: 1024px) {
+      #sidebar {
+        width: 340px;
+        min-width: 340px;
+        max-height: none !important;
+        overflow-y: auto;
+        height: 100vh;
+      }
+    }
+
+    #sidebar.open { max-height: 2000px; }
+
+    .input-game {
+      background-color: #0f0a0b;
+      border: 1px solid var(--border-dark);
+      color: var(--text-main);
+      border-radius: 8px;
+      transition: 0.25s;
+      box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.5);
+    }
+
+    .input-game:focus {
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 10px rgba(192, 57, 43, 0.25), inset 0 2px 6px rgba(0, 0, 0, 0.5);
+      outline: none;
+    }
+
+    .custom-target-box {
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid var(--border-dark);
+      border-radius: 10px;
+      box-shadow: inset 0 3px 10px rgba(0, 0, 0, 0.5);
+    }
+
+    .rune-clip {
+      clip-path: polygon(
+        0% 18px, 18px 0%, 28px 0%, 34px 6px,
+        calc(100% - 34px) 6px, calc(100% - 28px) 0%, calc(100% - 18px) 0%, 100% 18px,
+        100% calc(100% - 22px), calc(50% + 10px) calc(100% - 6px), 50% 100%,
+        calc(50% - 10px) calc(100% - 6px), 0% calc(100% - 22px)
+      );
+    }
+
+    .category-header {
+      background: #050505;
+      border: 1px solid rgba(180, 120, 60, 0.35);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 22px;
+      box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.8);
+    }
+
+    .category-header.rune-clip {
+      filter: drop-shadow(0 0 14px var(--cat-glow, rgba(255, 140, 50, 0.2)));
+    }
+
+    .category-header--starter {
+      border-color: rgba(120, 200, 255, 0.55);
+      --cat-glow: rgba(100, 190, 255, 0.45);
+      box-shadow:
+        0 0 18px rgba(80, 170, 255, 0.35),
+        0 0 36px rgba(60, 140, 255, 0.15),
+        inset 0 0 24px rgba(0, 0, 0, 0.9);
+    }
+
+    .category-header--golden {
+      border-color: rgba(200, 168, 78, 0.65);
+      --cat-glow: rgba(200, 168, 78, 0.25);
+      box-shadow:
+        0 0 10px rgba(200, 168, 78, 0.2),
+        inset 0 0 24px rgba(0, 0, 0, 0.9);
+    }
+
+    .category-title {
+      font-family: 'Cinzel Decorative', serif;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .rune-card-shell {
+      position: relative;
+      padding: 2px;
+      transition: transform 0.3s ease, filter 0.3s ease;
+    }
+
+    .rune-card-shell.rune-clip {
+      background: var(--shell-border);
+    }
+
+    .rune-card-shell--starter {
+      --shell-border: linear-gradient(135deg, #a8e4ff 0%, #4a9fd4 35%, #78c8f5 55%, #2a6a9e 100%);
+      filter: drop-shadow(0 0 10px rgba(100, 190, 255, 0.55)) drop-shadow(0 0 22px rgba(60, 150, 255, 0.3));
+    }
+
+    .rune-card-shell--golden {
+      --shell-border: linear-gradient(135deg, #f0d78a 0%, #a8842a 40%, #c8a84e 60%, #6b5420 100%);
+      filter: drop-shadow(0 0 6px rgba(200, 168, 78, 0.35));
+    }
+
+    .rune-card-shell--default {
+      --shell-border: linear-gradient(135deg, #8a7060, #3a2a28);
+      filter: drop-shadow(0 0 6px rgba(0, 0, 0, 0.5));
+    }
+
+    .rune-card-shell:hover {
+      transform: translateY(-4px) scale(1.02);
+      z-index: 10;
+    }
+
+    .rune-card-shell--starter:hover {
+      filter: drop-shadow(0 0 14px rgba(120, 200, 255, 0.75)) drop-shadow(0 0 28px rgba(80, 170, 255, 0.4));
+    }
+
+    .rune-card-shell--golden:hover {
+      filter: drop-shadow(0 0 10px rgba(212, 184, 90, 0.45));
+    }
+
+    .rune-card {
+      position: relative;
+      background: #030303;
+      min-height: 140px;
+      display: flex;
+      flex-direction: column;
+      min-height: 100%;
+      overflow: hidden;
+    }
+
+    .rune-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 50% 0%, rgba(var(--rune-rgb), 0.12) 0%, transparent 55%),
+        repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 2px,
+          rgba(255, 255, 255, 0.015) 2px,
+          rgba(255, 255, 255, 0.015) 3px
+        );
+      pointer-events: none;
+    }
+
+    .rune-card--starter { --rune-rgb: 120, 200, 245; }
+    .rune-card--golden { --rune-rgb: 200, 168, 78; }
+    .rune-card--default { --rune-rgb: 138, 112, 96; }
+
+    .rune-card-inner {
+      position: relative;
+      z-index: 1;
+      padding: 1rem 1.1rem 1.15rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      flex: 1;
+    }
+
+    .rune-set-label {
+      font-family: 'Cinzel Decorative', serif;
+      font-size: 0.62rem;
+      text-transform: uppercase;
+      letter-spacing: 0.22em;
+      font-weight: 700;
+    }
+
+    .rune-name {
+      font-family: 'Cinzel Decorative', serif;
+      font-size: 1.15rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      line-height: 1.2;
+    }
+
+    .rune-card--starter .rune-set-label,
+    .rune-card--starter .rune-name {
+      color: #78c8f5;
+      text-shadow: 0 0 12px rgba(120, 200, 255, 0.5);
+    }
+
+    .rune-card--golden .rune-set-label,
+    .rune-card--golden .rune-name {
+      color: #c8a84e;
+      text-shadow: 0 0 8px rgba(200, 168, 78, 0.35);
+    }
+
+    .rune-card--default .rune-set-label,
+    .rune-card--default .rune-name {
+      color: var(--text-main);
+    }
+
+    .rune-chance {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      letter-spacing: 0.04em;
+    }
+
+    .rune-eta-block {
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      padding-top: 0.6rem;
+      margin-top: 0.15rem;
+    }
+
+    .rune-eta-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-size: 0.8rem;
+    }
+
+    .rune-eta-row .eta-label {
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-size: 0.65rem;
+    }
+
+    .rune-eta-row .eta-value {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.95rem;
+    }
+
+    @keyframes card-enter {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card-enter { animation: card-enter 0.45s ease forwards; opacity: 0; }
+
+    .eta-fast { color: #4ade80; transition: color 0.3s; }
+    .eta-mid { color: #fb923c; transition: color 0.3s; }
+    .eta-slow { color: #f87171; transition: color 0.3s; }
+    .eta-none { color: var(--text-muted); }
+
+    .toggle-checkbox { display: none; }
+    .toggle-container { position: relative; width: 42px; height: 24px; flex-shrink: 0; }
+    .toggle-label {
+      display: block; overflow: hidden; cursor: pointer;
+      border-radius: 99px; background-color: #1a1012;
+      border: 1px solid var(--border-dark); height: 100%; transition: 0.2s;
+    }
+    .toggle-ball {
+      position: absolute; top: 3px; left: 3px; width: 16px; height: 16px;
+      background: var(--text-main); border-radius: 50%;
+      transition: 0.2s; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+    }
+    .toggle-checkbox:checked + .toggle-label {
+      background-color: var(--accent-primary);
+      border-color: var(--accent-hot);
+    }
+    .toggle-checkbox:checked + .toggle-label .toggle-ball { transform: translateX(18px); }
+
+    .btn-sort {
+      background: rgba(15, 10, 12, 0.8);
+      border: 1px solid var(--border-dark);
+      padding: 10px 16px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      transition: all 0.2s; color: var(--text-muted);
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .btn-sort:hover { border-color: var(--accent-primary); color: var(--text-main); }
+    .btn-sort.active {
+      background: var(--accent-primary);
+      color: #fff;
+      border-color: var(--accent-hot);
+      box-shadow: 0 0 15px rgba(255, 34, 68, 0.25);
+    }
+
+    .btn-mobile-config {
+      background: var(--accent-primary);
+      color: #fff;
+      border: 1px solid var(--accent-hot);
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+
+    .btn-special-filter.active {
+      border-color: var(--special-gold) !important;
+      box-shadow: 0 0 15px rgba(245, 200, 66, 0.35) !important;
+      color: var(--special-gold) !important;
+    }
+
+    .stat-line::before {
+      content: '◆';
+      color: var(--stat-accent, var(--accent-hot));
+      margin-right: 6px;
+      font-size: 0.5rem;
+      vertical-align: middle;
+    }
+
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg-deep); }
+    ::-webkit-scrollbar-thumb { background: var(--accent-primary); border-radius: 4px; }
+
+    #mainArea {
+      flex: 1;
+      overflow-y: auto;
+      min-height: 0;
+    }
+
+    @media (min-width: 1024px) {
+      #mainArea { height: 100vh; }
+    }
+  </style>
+</head>
+<body class="font-body">
+
+  <button type="button" id="toggleSidebar" class="btn-mobile-config lg:hidden fixed top-3 left-3 z-50 font-body">
+    ⚔ Config
+  </button>
+
+  <aside id="sidebar" class="z-40 lg:z-auto">
+    <div class="p-5 pt-14 lg:pt-5 space-y-5">
+      <div class="hidden lg:block mb-2">
+        <h2 class="font-display text-xl text-[var(--accent-hot)] tracking-wider">⚔ Slayer Config</h2>
+      </div>
+
+      <div>
+        <label class="text-xs uppercase tracking-wider text-[var(--text-muted)] font-semibold">Cooldown (Speed)</label>
+        <div class="flex items-center gap-2 mt-1">
+          <input type="number" id="speed" value="0.15" step="0.01" min="0.01"
+            class="input-game w-full px-3 py-2 font-mono text-sm">
+          <span class="text-sm text-[var(--text-muted)] whitespace-nowrap">sec</span>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 gap-3">
+        <div>
+          <label class="text-xs uppercase tracking-wider text-[var(--text-muted)] font-semibold">Rune Bulk</label>
+          <input type="text" id="bulk" placeholder="e.g. 100k" value="1"
+            class="input-game w-full px-3 py-2 mt-1 font-mono text-sm">
+        </div>
+        <div>
+          <label class="text-xs uppercase tracking-wider text-[var(--text-muted)] font-semibold">Rune Luck</label>
+          <input type="text" id="luck" placeholder="e.g. 1" value="1"
+            class="input-game w-full px-3 py-2 mt-1 font-mono text-sm">
+        </div>
+      </div>
+
+      <div class="custom-target-box p-4 space-y-3">
+        <label class="text-xs uppercase tracking-wider text-[var(--text-muted)] font-semibold">Custom Target</label>
+        <input type="text" id="target" placeholder="e.g. 500k or 1/5OcDe"
+          class="input-game w-full px-3 py-2 font-mono text-sm">
+        <div>
+          <p class="text-[10px] uppercase tracking-widest text-[var(--text-muted)] mb-1">ETA 50%</p>
+          <p id="customEta" class="font-mono text-2xl font-bold eta-none">--</p>
+        </div>
+      </div>
+
+      <div>
+        <p class="text-xs uppercase tracking-wider text-[var(--text-muted)] font-semibold mb-3">Rune Potions</p>
+        <div class="space-y-3">
+          <div class="flex items-center justify-between gap-3">
+            <span class="text-sm"><i class="fas fa-flask text-[var(--accent-hot)] mr-2"></i>Rune Speed Potion <span class="text-[var(--text-muted)] text-xs">(×1.25 Speed)</span></span>
+            <div class="toggle-container">
+              <input type="checkbox" id="speedPotion" class="toggle-checkbox">
+              <label for="speedPotion" class="toggle-label"><span class="toggle-ball"></span></label>
+            </div>
+          </div>
+          <div class="flex items-center justify-between gap-3">
+            <span class="text-sm"><i class="fas fa-clover text-[var(--accent-hot)] mr-2"></i>Rune Luck Potion <span class="text-[var(--text-muted)] text-xs">(×1.5 Luck)</span></span>
+            <div class="toggle-container">
+              <input type="checkbox" id="luckPotion" class="toggle-checkbox">
+              <label for="luckPotion" class="toggle-label"><span class="toggle-ball"></span></label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <main id="mainArea" class="flex-1 p-4 pt-14 lg:pt-6 lg:px-8">
+    <header class="mb-6 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+      <div>
+        <h1 class="font-display text-3xl sm:text-4xl header-title tracking-wide">Slayer Inc</h1>
+        <p class="text-sm text-[var(--text-muted)] uppercase tracking-[0.2em] mt-1">Rune Calculator</p>
+      </div>
+      <div class="bg-[var(--bg-panel)] border border-[var(--border-dark)] rounded-lg px-5 py-3 text-right">
+        <p class="text-[10px] uppercase tracking-widest text-[var(--text-muted)]">Effective RPS</p>
+        <p id="effectiveRPS" class="font-mono text-2xl text-[var(--accent-hot)]">0</p>
+      </div>
+    </header>
+
+    <div class="flex flex-col sm:flex-row gap-3 mb-4">
+      <div class="relative flex-1">
+        <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] text-sm"></i>
+        <input type="text" id="runeSearch" placeholder="Search runes..."
+          class="input-game w-full pl-10 pr-4 py-2.5 text-sm">
+      </div>
+      <div class="flex flex-wrap gap-2">
+        <button type="button" id="modeCategory" class="btn-sort active" onclick="window.setModeCategory()">
+          Total Rune: 0
+        </button>
+        <button type="button" id="modeEta" class="btn-sort" onclick="window.setModeEta()">
+          ETA <i id="iconEta" class="fas fa-sort-amount-up opacity-50 ml-1"></i>
+        </button>
+      </div>
+    </div>
+
+    <div id="noResults" class="text-center py-20 text-[var(--text-muted)]">
+      <i class="fas fa-skull text-4xl mb-4 opacity-40"></i>
+      <p class="font-display text-xl">No Runes Discovered</p>
+      <p class="text-sm mt-2">Add runes to <code class="text-[var(--accent-hot)]">runes.js</code></p>
+    </div>
+
+    <div id="runesGrid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 pb-10"></div>
+  </main>
+
+  <script src="runes.js"></script>
+  <script>
+    const categoryOrder = window.categoryOrder || [];
+    const runeData = window.runeData || [];
+
+    const RUNE_SPEED_POTION_MULT = 1.25;
+    const RUNE_LUCK_POTION_MULT = 1.5;
+
+    window.sortConfig = { mode: 'category', direction: 'asc' };
+    window.pinnedRunes = new Set();
+
+    function getRuneKey(rune) {
+      return `${rune.type}::${rune.name}`;
+    }
+
+    const suffixes = [
+      { val: 1e3, sym: 'k', disp: 'k' },
+      { val: 1e6, sym: 'm', disp: 'M' },
+      { val: 1e9, sym: 'b', disp: 'B' },
+      { val: 1e12, sym: 't', disp: 'T' },
+      { val: 1e15, sym: 'qd', disp: 'Qd' },
+      { val: 1e18, sym: 'qn', disp: 'Qn' },
+      { val: 1e21, sym: 'sx', disp: 'Sx' },
+      { val: 1e24, sym: 'sp', disp: 'Sp' },
+      { val: 1e27, sym: 'oc', disp: 'Oc' },
+      { val: 1e30, sym: 'no', disp: 'No' },
+      { val: 1e33, sym: 'de', disp: 'De' },
+      { val: 1e33, sym: 'dc', disp: 'De' },
+      { val: 1e36, sym: 'ude', disp: 'UDe' },
+      { val: 1e36, sym: 'ud', disp: 'UDe' },
+      { val: 1e39, sym: 'dde', disp: 'DDe' },
+      { val: 1e39, sym: 'dd', disp: 'DDe' },
+      { val: 1e42, sym: 'tde', disp: 'TDe' },
+      { val: 1e42, sym: 'td', disp: 'TDe' },
+      { val: 1e45, sym: 'qdde', disp: 'QdDe' },
+      { val: 1e48, sym: 'qnde', disp: 'QnDe' },
+      { val: 1e51, sym: 'sxde', disp: 'SxDe' },
+      { val: 1e54, sym: 'spde', disp: 'SpDe' },
+      { val: 1e57, sym: 'ocde', disp: 'OcDe' },
+      { val: 1e60, sym: 'node', disp: 'NoDe' },
+      { val: 1e63, sym: 'dede', disp: 'DeDe' },
+      { val: 1e66, sym: 'udde', disp: 'UdDe' },
+    ];
+
+    const sortedSuffixes = [...suffixes].sort((a, b) => b.sym.length - a.sym.length);
+
+    function hexToRgb(hex) {
+      const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+      return result
+        ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}`
+        : '192, 57, 43';
+    }
+
+    function parseValue(str) {
+      if (!str) return 0;
+      str = str.toString().toLowerCase().trim();
+      if (str.includes('/')) {
+        const parts = str.split('/');
+        str = parts.length > 1 ? parts[parts.length - 1].trim() : str;
+      }
+      for (const s of sortedSuffixes) {
+        if (str.endsWith(s.sym)) {
+          const num = parseFloat(str.slice(0, -s.sym.length));
+          return (isNaN(num) ? 1 : num) * s.val;
+        }
+      }
+      return parseFloat(str) || 0;
+    }
+
+    function getDispForVal(val) {
+      for (let i = suffixes.length - 1; i >= 0; i--) {
+        const s = suffixes[i];
+        if (s.val === val) return s.disp;
+      }
+      return '';
+    }
+
+    function formatValue(num) {
+      if (num === 0) return '0';
+      if (!isFinite(num)) return '--';
+      if (num < 1000) {
+        const v = num.toFixed(2).replace(/\.00$/, '');
+        return v;
+      }
+      const seen = new Set();
+      for (let i = suffixes.length - 1; i >= 0; i--) {
+        const s = suffixes[i];
+        if (seen.has(s.val)) continue;
+        seen.add(s.val);
+        if (num >= s.val) {
+          const scaled = (num / s.val).toFixed(2).replace(/\.00$/, '');
+          return scaled + s.disp;
+        }
+      }
+      return num.toExponential(2);
+    }
+
+    function formatTime(seconds) {
+      if (!isFinite(seconds) || seconds <= 0) return '--';
+      if (seconds < 60) return seconds.toFixed(2) + 's';
+      const min = Math.floor(seconds / 60);
+      if (min < 60) return `${min}m ${Math.floor(seconds % 60)}s`;
+      const hrs = Math.floor(min / 60);
+      if (hrs < 24) return `${hrs}h ${min % 60}m`;
+      const days = Math.floor(hrs / 24);
+      return `${days}d ${hrs % 24}h`;
+    }
+
+    function getEtaClass(seconds) {
+      if (!isFinite(seconds) || seconds <= 0) return 'eta-none';
+      if (seconds < 300) return 'eta-fast';
+      if (seconds < 3600) return 'eta-mid';
+      return 'eta-slow';
+    }
+
+    function getRuneTheme(type) {
+      const t = (type || '').toLowerCase();
+      if (t.includes('starter')) {
+        return { shell: 'starter', card: 'starter', accent: '#78c8f5', rgb: '120, 200, 245', icon: 'fa-shield-halved' };
+      }
+      if (t.includes('golden')) {
+        return { shell: 'golden', card: 'golden', accent: '#c8a84e', rgb: '200, 168, 78', icon: 'fa-coins' };
+      }
+      return { shell: 'default', card: 'default', accent: '#8a7060', rgb: '138, 112, 96', icon: 'fa-gem' };
+    }
+
+    function getEta50(base) {
+      return base > 0 ? base * Math.LN2 : 0;
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function formatChanceDisplay(chance) {
+      if (!chance) return '--';
+      const c = String(chance).trim();
+      if (c.toLowerCase().startsWith('1/') || c.includes('/')) return `1 in ${c.replace(/^1\s*\/\s*/i, '')}`;
+      return `1 in ${c}`;
+    }
+
+    window.togglePin = function (key, e) {
+      e.stopPropagation();
+      if (window.pinnedRunes.has(key)) window.pinnedRunes.delete(key);
+      else window.pinnedRunes.add(key);
+      window.calculate();
+    };
+
+    window.calculate = function () {
+      const speedEl = document.getElementById('speed');
+      const bulkEl = document.getElementById('bulk');
+      const luckEl = document.getElementById('luck');
+      const targetEl = document.getElementById('target');
+      if (!speedEl || !bulkEl || !luckEl) return;
+
+      let cooldown = parseFloat(speedEl.value) || 0.15;
+      const bulkValue = parseValue(bulkEl.value);
+      let luckValue = parseValue(luckEl.value);
+
+      if (document.getElementById('speedPotion')?.checked) {
+        cooldown /= RUNE_SPEED_POTION_MULT;
+      }
+      if (document.getElementById('luckPotion')?.checked) {
+        luckValue *= RUNE_LUCK_POTION_MULT;
+      }
+
+      const effectiveRPS = cooldown > 0 ? bulkValue / cooldown : 0;
+      document.getElementById('effectiveRPS').innerText = formatValue(effectiveRPS);
+
+      const totalPower = effectiveRPS * luckValue;
+      const target = targetEl ? parseValue(targetEl.value) : 0;
+      const customEtaEl = document.getElementById('customEta');
+
+      if (customEtaEl) {
+        if (totalPower > 0 && target > 0) {
+          const sec = getEta50(target / totalPower);
+          customEtaEl.innerText = formatTime(sec);
+          customEtaEl.className = 'font-mono text-2xl font-bold ' + getEtaClass(sec);
+        } else {
+          customEtaEl.innerText = '--';
+          customEtaEl.className = 'font-mono text-2xl font-bold eta-none';
+        }
+      }
+
+      renderRunes(totalPower);
+    };
+
+    window.setModeCategory = function () {
+      window.sortConfig.mode = 'category';
+      updateSortUI();
+      window.calculate();
+    };
+
+    window.setModeEta = function () {
+      if (window.sortConfig.mode === 'eta') {
+        window.sortConfig.direction = window.sortConfig.direction === 'asc' ? 'desc' : 'asc';
+      } else {
+        window.sortConfig.mode = 'eta';
+        window.sortConfig.direction = 'asc';
+      }
+      updateSortUI();
+      window.calculate();
+    };
+
+    function updateSortUI() {
+      const btnTotal = document.getElementById('modeCategory');
+      const btnEta = document.getElementById('modeEta');
+      const iconEta = document.getElementById('iconEta');
+      btnTotal.className = window.sortConfig.mode === 'category' ? 'btn-sort active' : 'btn-sort';
+      btnEta.className = window.sortConfig.mode === 'eta' ? 'btn-sort active' : 'btn-sort';
+      if (window.sortConfig.mode === 'category') {
+        iconEta.className = 'fas fa-sort-amount-up opacity-50 ml-1';
+      } else {
+        iconEta.className = window.sortConfig.direction === 'asc'
+          ? 'fas fa-sort-amount-up ml-1'
+          : 'fas fa-sort-amount-down ml-1';
+      }
+    }
+
+    function getCategorySortIndex(type) {
+      const idx = categoryOrder.indexOf(type);
+      return idx === -1 ? 9999 : idx;
+    }
+
+    function renderRunes(totalPower) {
+      const grid = document.getElementById('runesGrid');
+      if (!grid) return;
+
+      const term = (document.getElementById('runeSearch')?.value || '').toLowerCase();
+
+      let filtered = runeData.filter(r =>
+        r.name.toLowerCase().includes(term) || r.type.toLowerCase().includes(term)
+      );
+
+      const getEta50Sort = (r) => {
+        const t = parseValue(r.raw);
+        const base = totalPower > 0 && t > 0 ? t / totalPower : Infinity;
+        return getEta50(base === Infinity ? 0 : base) || Infinity;
+      };
+
+      if (window.sortConfig.mode === 'eta') {
+        filtered.sort((a, b) => {
+          const ea = getEta50Sort(a), eb = getEta50Sort(b);
+          return window.sortConfig.direction === 'asc' ? ea - eb : eb - ea;
+        });
+      } else {
+        filtered.sort((a, b) => {
+          const pinA = window.pinnedRunes.has(getRuneKey(a)) ? 1 : 0;
+          const pinB = window.pinnedRunes.has(getRuneKey(b)) ? 1 : 0;
+          if (pinA !== pinB) return pinB - pinA;
+          const catA = window.pinnedRunes.has(getRuneKey(a)) ? -1 : getCategorySortIndex(a.type);
+          const catB = window.pinnedRunes.has(getRuneKey(b)) ? -1 : getCategorySortIndex(b.type);
+          if (catA !== catB) return catA - catB;
+          return parseValue(a.raw) - parseValue(b.raw);
+        });
+      }
+
+      document.getElementById('modeCategory').innerText = `Total Rune: ${filtered.length}`;
+      document.getElementById('noResults').classList.toggle('hidden', filtered.length > 0);
+      grid.innerHTML = '';
+
+      let currentCategory = '';
+      let cardIndex = 0;
+
+      filtered.forEach(rune => {
+        const threshold = parseValue(rune.raw);
+        const etaBase = totalPower > 0 && threshold > 0 ? threshold / totalPower : 0;
+        const eta50 = getEta50(etaBase);
+
+        const runeKey = getRuneKey(rune);
+        const isPinned = window.pinnedRunes.has(runeKey);
+        const displayCat =
+          isPinned && window.sortConfig.mode === 'category' ? '⭐ Pinned' : rune.type;
+
+        const theme = getRuneTheme(rune.type);
+        const pinAccent = '#f5c842';
+        const accent = isPinned ? pinAccent : theme.accent;
+        const headerTheme = displayCat === '⭐ Pinned' ? 'golden' : theme.shell;
+
+        if (window.sortConfig.mode === 'category' && displayCat !== currentCategory) {
+          currentCategory = displayCat;
+          const count = filtered.filter(r => {
+            if (displayCat === '⭐ Pinned') return window.pinnedRunes.has(getRuneKey(r));
+            return r.type === displayCat && !window.pinnedRunes.has(getRuneKey(r));
+          }).length;
+
+          const header = document.createElement('div');
+          header.className = `col-span-full mt-6 mb-2 category-header rune-clip category-header--${headerTheme}`;
+          header.innerHTML = `
+            <h2 class="category-title text-xl" style="color:${accent};text-shadow:0 0 16px rgba(${isPinned ? '245,200,66' : theme.rgb},0.45)">${escapeHtml(currentCategory)}</h2>
+            <span class="text-xs font-bold uppercase tracking-wider px-3 py-1 font-body" style="color:${accent};border:1px solid ${accent}40">${count} Runes</span>
+          `;
+          grid.appendChild(header);
+        }
+
+        const shell = document.createElement('div');
+        shell.className = `rune-card-shell rune-clip rune-card-shell--${theme.shell} card-enter cursor-pointer${isPinned ? ' ring-1 ring-yellow-500/30' : ''}`;
+        shell.style.animationDelay = `${(cardIndex % 12) * 0.04}s`;
+        cardIndex++;
+
+        shell.onclick = () => {
+          document.getElementById('target').value = rune.raw;
+          window.calculate();
+        };
+
+        const pinClass = isPinned ? 'text-yellow-400' : 'text-gray-600 hover:text-yellow-400';
+        const statsHtml = (rune.stats || [])
+          .map(s => `<li class="stat-line text-xs opacity-90" style="--stat-accent:${accent}">${escapeHtml(s)}</li>`)
+          .join('');
+
+        shell.innerHTML = `
+          <div class="rune-card rune-clip rune-card--${theme.card}">
+            <button type="button" class="absolute top-2 right-2 z-20 text-lg ${pinClass} transition-colors"
+              onclick='window.togglePin(${JSON.stringify(runeKey)}, event)' aria-label="Pin rune">
+              <i class="fas fa-star"></i>
+            </button>
+            <div class="rune-card-inner">
+              <p class="rune-set-label">${escapeHtml(rune.type)}</p>
+              <h3 class="rune-name">${escapeHtml(rune.name)}</h3>
+              <p class="rune-chance">${formatChanceDisplay(rune.chance)}</p>
+              <div class="rune-eta-block">
+                <div class="rune-eta-row">
+                  <span class="eta-label">ETA 50%</span>
+                  <span class="eta-value ${getEtaClass(eta50)}">${formatTime(eta50)}</span>
+                </div>
+              </div>
+              ${statsHtml ? `<ul class="mt-1 space-y-0.5 pt-2 border-t border-white/5">${statsHtml}</ul>` : ''}
+            </div>
+          </div>
+        `;
+        grid.appendChild(shell);
+      });
+    }
+
+    document.getElementById('toggleSidebar')?.addEventListener('click', () => {
+      document.getElementById('sidebar')?.classList.toggle('open');
+    });
+
+    ['speed', 'bulk', 'luck', 'target'].forEach(id => {
+      document.getElementById(id)?.addEventListener('input', window.calculate);
+    });
+    ['speedPotion', 'luckPotion'].forEach(id => {
+      document.getElementById(id)?.addEventListener('change', window.calculate);
+    });
+    document.getElementById('runeSearch')?.addEventListener('input', window.calculate);
+
+    updateSortUI();
+    window.calculate();
+  </script>
+</body>
+</html>
