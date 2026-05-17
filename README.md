@@ -7,8 +7,6 @@
 
 *Forge your path through demon runes — calculate ETAs, stack potions, and plan your next drop in **Slayer Inc**.*
 
-![Calculator Preview](./preview.png)
-
 ---
 
 ## 🌐 Live Demo
