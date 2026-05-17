@@ -113,8 +113,16 @@ window.runeData = [
     raw: '125m',
     stats: ['x8 Power', 'x4 Rune Luck', '+5% Gold Chance'],
   },
+  {
+    name: 'GildedArcane', 
+    type: 'Golden Rune',
+    chance: '1/4.25qa',
+    raw: '4.25qa',
+    stats: ['x??? Xp', 'x??? Lava', 'x??? Rune Bulk'],
+  },
+  
 
-  // === MAGMA RUNE (raw/chance/stats placeholders — fill in when known) ===
+  // === MAGMA RUNE ===
   {
     name: 'Charred',
     type: 'Magma Rune',
