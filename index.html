@@ -546,6 +546,7 @@
     <div id="runesGrid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 pb-10"></div>
   </main>
 
+  <script src="suffixes.js"></script>
   <script src="runes.js"></script>
   <script>
     const categoryOrder = window.categoryOrder || [];
@@ -611,34 +612,7 @@
       return `${rune.type}::${rune.name}`;
     }
 
-    const suffixes = [
-      { val: 1e3, sym: 'k', disp: 'k' },
-      { val: 1e6, sym: 'm', disp: 'M' },
-      { val: 1e9, sym: 'b', disp: 'B' },
-      { val: 1e12, sym: 't', disp: 'T' },
-      { val: 1e15, sym: 'qa', disp: 'Qa' },
-      { val: 1e18, sym: 'qn', disp: 'Qn' },
-      { val: 1e21, sym: 'sx', disp: 'Sx' },
-      { val: 1e24, sym: 'sp', disp: 'Sp' },
-      { val: 1e27, sym: 'oc', disp: 'Oc' },
-      { val: 1e30, sym: 'no', disp: 'No' },
-      { val: 1e33, sym: 'de', disp: 'De' },
-      { val: 1e33, sym: 'dc', disp: 'De' },
-      { val: 1e36, sym: 'ude', disp: 'UDe' },
-      { val: 1e36, sym: 'ud', disp: 'UDe' },
-      { val: 1e39, sym: 'dde', disp: 'DDe' },
-      { val: 1e39, sym: 'dd', disp: 'DDe' },
-      { val: 1e42, sym: 'tde', disp: 'TDe' },
-      { val: 1e42, sym: 'td', disp: 'TDe' },
-      { val: 1e45, sym: 'qade', disp: 'QaDe' },
-      { val: 1e48, sym: 'qnde', disp: 'QnDe' },
-      { val: 1e51, sym: 'sxde', disp: 'SxDe' },
-      { val: 1e54, sym: 'spde', disp: 'SpDe' },
-      { val: 1e57, sym: 'ocde', disp: 'OcDe' },
-      { val: 1e60, sym: 'node', disp: 'NoDe' },
-      { val: 1e63, sym: 'dede', disp: 'DeDe' },
-      { val: 1e66, sym: 'udde', disp: 'UdDe' },
-    ];
+    const suffixes = window.gameSuffixes || [];
 
     const sortedSuffixes = [...suffixes].sort((a, b) => b.sym.length - a.sym.length);
 

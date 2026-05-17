@@ -118,7 +118,7 @@ window.runeData = [
     type: 'Golden Rune',
     chance: '1/4.25qa',
     raw: '4.25qa',
-    stats: ['x??? Xp', 'x??? Lava', 'x??? Rune Bulk'],
+    stats: ['x??? Xp', 'x??? Lava', 'x3 Rune Bulk'],
   },
   
 
