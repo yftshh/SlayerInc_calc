@@ -74,7 +74,7 @@ window.runeData = [
     type: 'Starter Rune',
     chance: '1/40.07b',
     raw: '40.07b',
-    stats: ['x10 Damage', 'x100 Essence', 'x3 RuneLuck'],
+    stats: ['x10 Damage', 'x100 Essence', 'x2.25 RuneLuck'],
   },
 
   // === GOLDEN RUNE ===
