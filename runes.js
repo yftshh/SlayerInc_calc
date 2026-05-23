@@ -167,10 +167,10 @@ window.runeData = [
     stats: ['x15 Power', 'x5 Lava', 'x25 Magma'],
   },
   {
-    name: 'Secret Magma',
+    name: 'Worldflare',
     type: 'Magma Rune',
-    chance: '1/500sx',
-    raw: '500sx',
+    chance: '1/10sp',
+    raw: '10sp',
     stats: ['???'],
   },
 
@@ -204,10 +204,10 @@ window.runeData = [
     stats: ['x??? Power', 'x??? Plasma', 'x7 RuneLuck'],
   },
   {
-    name: 'Secret Plasma',
+    name: 'Astralis',
     type: 'Plasma Rune',
-    chance: '1/1sp',
-    raw: '1sp',
+    chance: '1/2.5oc',
+    raw: '2.5oc',
     stats: ['???'],
   }
 ];
