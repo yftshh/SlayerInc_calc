@@ -5,7 +5,7 @@ window.gameSuffixes = [
   { val: 1e9, sym: 'b', disp: 'B' },
   { val: 1e12, sym: 't', disp: 'T' },
   { val: 1e15, sym: 'qa', disp: 'Qa' },
-  { val: 1e18, sym: 'qn', disp: 'Qn' },
+  { val: 1e18, sym: 'qi', disp: 'Qi' },
   { val: 1e21, sym: 'sx', disp: 'Sx' },
   { val: 1e24, sym: 'sp', disp: 'Sp' },
   { val: 1e27, sym: 'oc', disp: 'Oc' },

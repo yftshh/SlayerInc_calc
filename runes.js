@@ -16,6 +16,7 @@ window.categoryOrder = [
   'Starter Rune',
   'Golden Rune',
   'Magma Rune',
+  'Plasma Rune',
 ];
 
 window.runeData = [
@@ -118,7 +119,7 @@ window.runeData = [
     type: 'Golden Rune',
     chance: '1/4.25qa',
     raw: '4.25qa',
-    stats: ['x??? Xp', 'x??? Lava', 'x3 Rune Bulk'],
+    stats: ['x8 Xp', 'x10 Lava', 'x3 Rune Bulk'],
   },
   
 
@@ -161,8 +162,52 @@ window.runeData = [
   {
     name: 'Volcanic',
     type: 'Magma Rune',
-    chance: '1/500qa',
-    raw: '500qa',
+    chance: '1/300qa',
+    raw: '300qa',
     stats: ['x15 Power', 'x5 Lava', 'x25 Magma'],
+  },
+  {
+    name: 'Secret Magma',
+    type: 'Magma Rune',
+    chance: '1/500sx',
+    raw: '500sx',
+    stats: ['???'],
+  },
+
+  // === PLASMA RUNE ===
+  {
+    name: 'Plasmatic',
+    type: 'Plasma Rune',
+    chance: '1/1',
+    raw: '1',
+    stats: ['+x5 Plasma', '+x15 Power'],
+  },
+  {
+    name: 'Arclight',
+    type: 'Plasma Rune',
+    chance: '1/1qi',
+    raw: '1qi',
+    stats: ['+x25 Plasma', 'x4 Xp', 'x4 RuneBulk'],
+  },
+  {
+    name: 'Voltaris',
+    type: 'Plasma Rune',
+    chance: '1/12.5qi',
+    raw: '12.5qi',
+    stats: ['x3 Lava', 'x25 Magma', 'x5 RuneLuck'],
+  },
+  {
+    name: 'Aetherion',
+    type: 'Plasma Rune',
+    chance: '1/4.6sx',
+    raw: '4.6sx',
+    stats: ['x??? Power', 'x??? Plasma', 'x7 RuneLuck'],
+  },
+  {
+    name: 'Secret Plasma',
+    type: 'Plasma Rune',
+    chance: '1/1sp',
+    raw: '1sp',
+    stats: ['???'],
   }
 ];

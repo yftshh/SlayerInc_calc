@@ -149,6 +149,15 @@
         inset 0 0 24px rgba(0, 0, 0, 0.9);
     }
 
+    .category-header--plasma {
+      border-color: rgba(0, 229, 255, 0.65);
+      --cat-glow: rgba(0, 229, 255, 0.45);
+      box-shadow:
+        0 0 18px rgba(0, 229, 255, 0.35),
+        0 0 36px rgba(0, 131, 143, 0.2),
+        inset 0 0 24px rgba(0, 0, 0, 0.9);
+    }
+
     .category-title {
       font-family: 'Cinzel Decorative', serif;
       text-transform: uppercase;
@@ -180,6 +189,11 @@
       filter: drop-shadow(0 0 10px rgba(255, 100, 40, 0.55)) drop-shadow(0 0 22px rgba(220, 60, 20, 0.3));
     }
 
+    .rune-card-shell--plasma {
+      --shell-border: linear-gradient(135deg, #80f0ff 0%, #00bcd4 35%, #00e5ff 55%, #006064 100%);
+      filter: drop-shadow(0 0 10px rgba(0, 229, 255, 0.55)) drop-shadow(0 0 22px rgba(0, 131, 143, 0.3));
+    }
+
     .rune-card-shell--default {
       --shell-border: linear-gradient(135deg, #8a7060, #3a2a28);
       filter: drop-shadow(0 0 6px rgba(0, 0, 0, 0.5));
@@ -200,6 +214,10 @@
 
     .rune-card-shell--magma:hover {
       filter: drop-shadow(0 0 14px rgba(255, 120, 50, 0.75)) drop-shadow(0 0 28px rgba(220, 70, 25, 0.4));
+    }
+
+    .rune-card-shell--plasma:hover {
+      filter: drop-shadow(0 0 14px rgba(0, 229, 255, 0.75)) drop-shadow(0 0 28px rgba(0, 188, 212, 0.4));
     }
 
     .rune-card {
@@ -231,6 +249,7 @@
     .rune-card--starter { --rune-rgb: 120, 200, 245; }
     .rune-card--golden { --rune-rgb: 200, 168, 78; }
     .rune-card--magma { --rune-rgb: 255, 110, 48; }
+    .rune-card--plasma { --rune-rgb: 0, 229, 255; }
     .rune-card--default { --rune-rgb: 138, 112, 96; }
 
     .rune-card-inner {
@@ -275,6 +294,12 @@
     .rune-card--magma .rune-name {
       color: #ff7a38;
       text-shadow: 0 0 8px rgba(255, 100, 40, 0.4);
+    }
+
+    .rune-card--plasma .rune-set-label,
+    .rune-card--plasma .rune-name {
+      color: #00e5ff;
+      text-shadow: 0 0 12px rgba(0, 229, 255, 0.5);
     }
 
     .rune-card--default .rune-set-label,
@@ -349,11 +374,83 @@
     }
 
     @keyframes card-enter {
-      from { opacity: 0; transform: translateY(16px); }
-      to { opacity: 1; transform: translateY(0); }
+      from { opacity: 0; transform: translateY(16px) scale(0.96); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
     }
 
-    .card-enter { animation: card-enter 0.45s ease forwards; opacity: 0; }
+    @keyframes plasma-glow-pulse {
+      0%, 100% { filter: drop-shadow(0 0 14px rgba(0, 229, 255, 0.45)) drop-shadow(0 0 28px rgba(0, 188, 212, 0.2)); }
+      50% { filter: drop-shadow(0 0 22px rgba(0, 229, 255, 0.65)) drop-shadow(0 0 40px rgba(0, 188, 212, 0.35)); }
+    }
+
+    @keyframes shimmer {
+      0% { transform: translateX(-120%) skewX(-18deg); }
+      100% { transform: translateX(220%) skewX(-18deg); }
+    }
+
+    @keyframes spark-float {
+      0% { transform: translateY(0) scale(1); opacity: 0; }
+      15% { opacity: 1; }
+      85% { opacity: 1; }
+      100% { transform: translateY(-120px) scale(0.4); opacity: 0; }
+    }
+
+    @keyframes rps-pop {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.12); }
+      100% { transform: scale(1); }
+    }
+
+    .card-enter { animation: card-enter 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards; opacity: 0; }
+
+    .plasma-glow-pulse {
+      animation: plasma-glow-pulse 2.8s ease-in-out infinite;
+    }
+
+    .shimmer-overlay {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .shimmer-overlay::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 40%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
+      transform: translateX(-120%) skewX(-18deg);
+      animation: shimmer 3.5s ease-in-out infinite;
+    }
+
+    .rune-card-shell--plasma .shimmer-overlay::after {
+      background: linear-gradient(90deg, transparent, rgba(0, 229, 255, 0.15), transparent);
+      animation-duration: 2.2s;
+    }
+
+    .rune-card-shell--golden .shimmer-overlay::after {
+      background: linear-gradient(90deg, transparent, rgba(245, 200, 66, 0.12), transparent);
+    }
+
+    .spark-particle {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background: #00e5ff;
+      border-radius: 50%;
+      box-shadow: 0 0 6px 1px rgba(0, 229, 255, 0.6);
+      pointer-events: none;
+      animation: spark-float 4s linear infinite;
+      opacity: 0;
+    }
+
+    .rps-pop-anim {
+      animation: rps-pop 0.25s ease-out;
+    }
 
     .eta-fast { color: #4ade80; transition: color 0.3s; }
     .eta-mid { color: #fb923c; transition: color 0.3s; }
@@ -432,6 +529,15 @@
       flex: 1;
       overflow-y: auto;
       min-height: 0;
+      position: relative;
+    }
+
+    #sparkContainer {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 0;
     }
 
     @media (min-width: 1024px) {
@@ -510,6 +616,7 @@
   </aside>
 
   <main id="mainArea" class="flex-1 p-4 pt-14 lg:pt-6 lg:px-8">
+    <div id="sparkContainer"></div>
     <header class="mb-6 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
       <div>
         <h1 class="font-display text-3xl sm:text-4xl header-title tracking-wide">Slayer Inc</h1>
@@ -709,6 +816,9 @@
       if (t.includes('magma')) {
         return { shell: 'magma', card: 'magma', accent: '#ff6a28', rgb: '255, 110, 48', icon: 'fa-fire' };
       }
+      if (t.includes('plasma')) {
+        return { shell: 'plasma', card: 'plasma', accent: '#00e5ff', rgb: '0, 229, 255', icon: 'fa-bolt' };
+      }
       return { shell: 'default', card: 'default', accent: '#8a7060', rgb: '138, 112, 96', icon: 'fa-gem' };
     }
 
@@ -870,7 +980,13 @@
       }
 
       const effectiveRPS = cooldown > 0 ? bulkValue / cooldown : 0;
-      document.getElementById('effectiveRPS').innerText = formatValue(effectiveRPS);
+      const rpsEl = document.getElementById('effectiveRPS');
+      if (rpsEl) {
+        rpsEl.innerText = formatValue(effectiveRPS);
+        rpsEl.classList.remove('rps-pop-anim');
+        void rpsEl.offsetWidth;
+        rpsEl.classList.add('rps-pop-anim');
+      }
 
       const totalPower = effectiveRPS * luckValue;
       const target = targetEl ? parseValue(targetEl.value) : 0;
@@ -1017,7 +1133,8 @@
           }).length;
 
           const header = document.createElement('div');
-          header.className = `col-span-full mt-6 mb-2 category-header rune-clip category-header--${headerTheme}`;
+          const isPlasma = headerTheme === 'plasma';
+          header.className = `col-span-full mt-6 mb-2 category-header rune-clip category-header--${headerTheme}${isPlasma ? ' plasma-glow-pulse' : ''}`;
           header.innerHTML = `
             <h2 class="category-title text-xl" style="color:${accent};text-shadow:0 0 16px rgba(${isPinned ? '245,200,66' : theme.rgb},0.45)">${escapeHtml(currentCategory)}</h2>
             <span class="text-xs font-bold uppercase tracking-wider px-3 py-1 font-body" style="color:${accent};border:1px solid ${accent}40">${count} Runes</span>
@@ -1059,6 +1176,7 @@
 
         shell.innerHTML = `
           <div class="rune-card rune-clip rune-card--${theme.card}${isLocked ? ' rune-card--locked' : ''}">
+            <div class="shimmer-overlay"></div>
             <button type="button" class="absolute top-2 right-2 z-20 text-lg ${pinClass} transition-colors"
               onclick='window.togglePin(${JSON.stringify(runeKey)}, event)' aria-label="Pin rune">
               <i class="fas fa-star"></i>
@@ -1092,6 +1210,23 @@
       document.getElementById(id)?.addEventListener('change', window.calculate);
     });
     document.getElementById('runeSearch')?.addEventListener('input', window.calculate);
+
+    (function initSparks() {
+      const container = document.getElementById('sparkContainer');
+      if (!container) return;
+      const SPARK_COUNT = 18;
+      for (let i = 0; i < SPARK_COUNT; i++) {
+        const spark = document.createElement('div');
+        spark.className = 'spark-particle';
+        spark.style.left = Math.random() * 100 + '%';
+        spark.style.top = Math.random() * 100 + '%';
+        spark.style.animationDuration = (3 + Math.random() * 5) + 's';
+        spark.style.animationDelay = (Math.random() * 6) + 's';
+        spark.style.width = (1 + Math.random() * 2) + 'px';
+        spark.style.height = spark.style.width;
+        container.appendChild(spark);
+      }
+    })();
 
     loadState();
     updateSortUI();
