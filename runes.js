@@ -171,7 +171,7 @@ window.runeData = [
     type: 'Magma Rune',
     chance: '1/10sp',
     raw: '10sp',
-    stats: ['???'],
+    stats: ['x5 Plasma', 'x5 Xp', 'x10 Magma'],
   },
 
   // === PLASMA RUNE ===
@@ -208,6 +208,6 @@ window.runeData = [
     type: 'Plasma Rune',
     chance: '1/2.5oc',
     raw: '2.5oc',
-    stats: ['???'],
+    stats: ['x9 Plasma', 'x5 Lava', 'x3 RuneLuck'],
   }
 ];
