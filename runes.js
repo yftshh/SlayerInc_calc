@@ -201,7 +201,7 @@ window.runeData = [
     type: 'Plasma Rune',
     chance: '1/4.6sx',
     raw: '4.6sx',
-    stats: ['x??? Power', 'x??? Plasma', 'x7 RuneLuck'],
+    stats: ['x12 Power', 'x5 Plasma', 'x7 RuneLuck'],
   },
   {
     name: 'Astralis',
