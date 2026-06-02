@@ -82,14 +82,14 @@ window.runeData = [
     type: 'Starter Rune',
     chance: '1/400oc',
     raw: '400oc',
-    stats: ['x10 Xp', 'x??? Golden Points', 'x??? RuneBulk'],
+    stats: ['x10 Xp', 'x12 Golden Points', 'x5 RuneBulk'],
   },
   {
     name: 'Ancient',
     type: 'Starter Rune',
     chance: '1/40ud',
     raw: '40ud',
-    stats: ['???'],
+    stats: ['x10 Plasma', 'x25 Spirit Orbs', 'x3 RuneLuck'],
   },
 
   // === GOLDEN RUNE ===
@@ -140,7 +140,7 @@ window.runeData = [
     type: 'Golden Rune',
     chance: '1/900n',
     raw: '900n',
-    stats: ['???'],
+    stats: ['x75 Power', 'x10 Golden Points', 'x5 RuneLuck'],
   },
   
 
