@@ -77,6 +77,20 @@ window.runeData = [
     raw: '40.07b',
     stats: ['x10 Damage', 'x100 Essence', 'x2.25 RuneLuck'],
   },
+  {
+    name: 'Celestial',
+    type: 'Starter Rune',
+    chance: '1/400oc',
+    raw: '400oc',
+    stats: ['x10 Xp', 'x??? Golden Points', 'x??? RuneBulk'],
+  },
+  {
+    name: 'Ancient',
+    type: 'Starter Rune',
+    chance: '1/40ud',
+    raw: '40ud',
+    stats: ['???'],
+  },
 
   // === GOLDEN RUNE ===
   {
@@ -120,6 +134,13 @@ window.runeData = [
     chance: '1/4.25qa',
     raw: '4.25qa',
     stats: ['x8 Xp', 'x10 Lava', 'x3 Rune Bulk'],
+  },
+  {
+    name: 'Kingsmark', 
+    type: 'Golden Rune',
+    chance: '1/900n',
+    raw: '900n',
+    stats: ['???'],
   },
   
 
