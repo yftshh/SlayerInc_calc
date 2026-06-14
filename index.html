@@ -158,6 +158,15 @@
         inset 0 0 24px rgba(0, 0, 0, 0.9);
     }
 
+    .category-header--snow {
+      border-color: rgba(140, 210, 240, 0.55);
+      --cat-glow: rgba(120, 200, 240, 0.45);
+      box-shadow:
+        0 0 18px rgba(100, 190, 240, 0.35),
+        0 0 36px rgba(60, 160, 220, 0.15),
+        inset 0 0 24px rgba(0, 0, 0, 0.9);
+    }
+
     .category-title {
       font-family: 'Cinzel Decorative', serif;
       text-transform: uppercase;
@@ -194,6 +203,11 @@
       filter: drop-shadow(0 0 10px rgba(0, 229, 255, 0.55)) drop-shadow(0 0 22px rgba(0, 131, 143, 0.3));
     }
 
+    .rune-card-shell--snow {
+      --shell-border: linear-gradient(135deg, #d0f0ff 0%, #88c8e8 35%, #a8d8f0 55%, #3a7a9e 100%);
+      filter: drop-shadow(0 0 10px rgba(120, 200, 240, 0.55)) drop-shadow(0 0 22px rgba(80, 180, 220, 0.3));
+    }
+
     .rune-card-shell--default {
       --shell-border: linear-gradient(135deg, #8a7060, #3a2a28);
       filter: drop-shadow(0 0 6px rgba(0, 0, 0, 0.5));
@@ -218,6 +232,10 @@
 
     .rune-card-shell--plasma:hover {
       filter: drop-shadow(0 0 14px rgba(0, 229, 255, 0.75)) drop-shadow(0 0 28px rgba(0, 188, 212, 0.4));
+    }
+
+    .rune-card-shell--snow:hover {
+      filter: drop-shadow(0 0 14px rgba(120, 200, 240, 0.75)) drop-shadow(0 0 28px rgba(80, 180, 220, 0.4));
     }
 
     .rune-card {
@@ -250,6 +268,7 @@
     .rune-card--golden { --rune-rgb: 200, 168, 78; }
     .rune-card--magma { --rune-rgb: 255, 110, 48; }
     .rune-card--plasma { --rune-rgb: 0, 229, 255; }
+    .rune-card--snow { --rune-rgb: 140, 210, 240; }
     .rune-card--default { --rune-rgb: 138, 112, 96; }
 
     .rune-card-inner {
@@ -300,6 +319,12 @@
     .rune-card--plasma .rune-name {
       color: #00e5ff;
       text-shadow: 0 0 12px rgba(0, 229, 255, 0.5);
+    }
+
+    .rune-card--snow .rune-set-label,
+    .rune-card--snow .rune-name {
+      color: #a8d8f0;
+      text-shadow: 0 0 12px rgba(120, 200, 240, 0.5);
     }
 
     .rune-card--default .rune-set-label,
@@ -818,6 +843,9 @@
       }
       if (t.includes('plasma')) {
         return { shell: 'plasma', card: 'plasma', accent: '#00e5ff', rgb: '0, 229, 255', icon: 'fa-bolt' };
+      }
+      if (t.includes('snow')) {
+        return { shell: 'snow', card: 'snow', accent: '#a8d8f0', rgb: '140, 210, 240', icon: 'fa-snowflake' };
       }
       return { shell: 'default', card: 'default', accent: '#8a7060', rgb: '138, 112, 96', icon: 'fa-gem' };
     }

@@ -17,6 +17,7 @@ window.categoryOrder = [
   'Golden Rune',
   'Magma Rune',
   'Plasma Rune',
+  'Snow Rune',
 ];
 
 window.runeData = [
@@ -194,6 +195,13 @@ window.runeData = [
     raw: '10sp',
     stats: ['x5 Plasma', 'x5 Xp', 'x10 Magma'],
   },
+  {
+    name: 'InfernalSigil',
+    type: 'Magma Rune',
+    chance: '1/80Dd',
+    raw: '80dd',
+    stats: ['x45 Power', 'x10 Xp', 'x9 RuneLuck'],
+  },
 
   // === PLASMA RUNE ===
   {
@@ -230,5 +238,49 @@ window.runeData = [
     chance: '1/2.5oc',
     raw: '2.5oc',
     stats: ['x9 Plasma', 'x5 Lava', 'x3 RuneLuck'],
+  },
+  {
+    name: 'Ecliptor',
+    type: 'Plasma Rune',
+    chance: '1/350Td',
+    raw: '350td',
+    stats: ['???'],
+  },
+
+  // === SNOW RUNE ===
+  {
+    name: 'Snowfall',
+    type: 'Snow Rune',
+    chance: '1/1',
+    raw: '1',
+    stats: ['x10 Snowflakes', 'x15 Snowflakes', 'x10 Xp'],
+  },
+  {
+    name: 'Frostbite',
+    type: 'Snow Rune',
+    chance: '1/99.99N',
+    raw: '99.99n',
+    stats: ['x40 Power', 'x10 Xp', 'x7 Snowflakes'],
+  },
+  {
+    name: 'Icebound',
+    type: 'Snow Rune',
+    chance: '1/1.999Dd',
+    raw: '1.999dd',
+    stats: ['x2 Xp', 'x5 Snowflakes', 'x15 Plasma'],
+  },
+  {
+    name: 'Glacial',
+    type: 'Snow Rune',
+    chance: '1/49.99Td',
+    raw: '49.99td',
+    stats: ['x50 Power', 'x38.67 Magma', 'x3 RuneLuck'],
+  },
+  {
+    name: 'WintersWrath',
+    type: 'Snow Rune',
+    chance: '1/999.9Qui',
+    raw: '999.9qui',
+    stats: ['x9.97 Power', 'x3.5 Snowflakes', 'x3.7 RuneBulk'],
   }
 ];
