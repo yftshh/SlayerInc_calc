@@ -274,13 +274,13 @@ window.runeData = [
     type: 'Snow Rune',
     chance: '1/49.99Td',
     raw: '49.99td',
-    stats: ['x50 Power', 'x38.67 Magma', 'x3 RuneLuck'],
+    stats: ['x50 Power', 'x?? Magma', 'x3 RuneLuck'],
   },
   {
     name: 'WintersWrath',
     type: 'Snow Rune',
     chance: '1/999.9Qui',
     raw: '999.9qui',
-    stats: ['x9.97 Power', 'x3.5 Snowflakes', 'x3.7 RuneBulk'],
+    stats: ['x?? Power', '5 Snowflakes', 'x?? RuneBulk'],
   }
 ];
